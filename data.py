@@ -10,7 +10,7 @@ num_assets = len(tickers)
 # need to decide start year
 raw = yf.download(
     tickers, 
-    start="2000-01-01", 
+    start="2015-01-01", 
     auto_adjust=True
 )
 data = raw["Close"]
@@ -51,3 +51,42 @@ mvo_weights = w.value
 # daily returns of optimized portfolio
 mvo_portfolio_returns = returns.dot(mvo_weights)
 
+# analyze performance
+
+# how much the portfolio grew per year on average
+def annualized_return(ret):
+    return (1 + ret).prod() ** (252 / len(ret)) - 1
+
+# how much the portfolio fluctuated day-to-day
+def annualized_volatility(ret):
+    return ret.std() * np.sqrt(252)
+
+# table for comparison
+results = pd.DataFrame({
+    "CAP": [
+        annualized_return(cap_portfolio_returns),
+        annualized_volatility(cap_portfolio_returns)
+    ],
+    "MVO": [
+        annualized_return(mvo_portfolio_returns),
+        annualized_volatility(mvo_portfolio_returns)
+    ]
+},
+index=["Annual Return", "Annual Volatility"])
+
+print("\nPortfolio Comparison:")
+print(results)
+
+# cum growth of $1 invested
+cum_cap = (1 + cap_portfolio_returns).cumprod()
+cum_mvo = (1 + mvo_portfolio_returns).cumprod()
+
+# now plot
+plt.plot(cum_cap, label="CAP")
+plt.plot(cum_mvo, label="MVO")
+plt.title("Cumulative Return Comparison")
+plt.xlabel("Date")
+plt.ylabel("Growth of $1")
+plt.legend()
+plt.grid(True)
+plt.show()
