@@ -10,18 +10,17 @@ num_assets = len(tickers)
 # need to decide start year
 raw = yf.download(
     tickers, 
-    start="2020-01-01", 
+    start="2000-01-01", 
     auto_adjust=True
 )
 data = raw["Close"]
 
-print(data.head())
-
+# print(data.head())
 
 # daily returns, drop first row b/c DNE
-returns = raw.pct_change().dropna()
+returns = data.pct_change().dropna()
 
-print(returns.head())
+# print(returns.head())
 
 # get market caps
 market_caps = []
@@ -35,4 +34,20 @@ cap_weights = market_caps / market_caps.sum()
 # get cap-weighted portfolio returns
 cap_portfolio_returns = returns.dot(cap_weights)
 
+
+# this is the markowitz mean variance optimizing part
+cov = returns.cov().values # cov matrix of returns
+w = cp.Variable(num_assets) # optimization variables (one per asset)
+objective = cp.Minimize(cp.quad_form(w, cov)) # minimize portfolio variance aka w^T Σ w
+constraints = [
+    cp.sum(w) == 1,
+    w >= 0
+]
+problem = cp.Problem(objective, constraints) # optimize!
+problem.solve() # LOL if only i could call this fxn on my life
+
+# extract optimal weights 
+mvo_weights = w.value
+# daily returns of optimized portfolio
+mvo_portfolio_returns = returns.dot(mvo_weights)
 
