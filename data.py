@@ -90,3 +90,15 @@ plt.ylabel("Growth of $1")
 plt.legend()
 plt.grid(True)
 plt.show()
+
+# i think this has to be adjusted based on real historical numbers??? argh 
+risk_free_rate = 0.05
+rf_daily = risk_free_rate / 252
+excess_daily_return_cap = cap_portfolio_returns - rf_daily
+excess_daily_return_mvo = mvo_portfolio_returns - rf_daily
+# sharpe is basically risk-adjusted return of an investment
+# = excess return over risk-free rate, divided by stdev
+sharpe_ratio_cap = np.sqrt(252) * (excess_daily_return_cap.mean() / excess_daily_return_cap.std())
+sharpe_ratio_mvo = np.sqrt(252) * (excess_daily_return_mvo.mean() / excess_daily_return_mvo.std())
+print("\nSharpe Ratio (CAP):", sharpe_ratio_cap)
+print("Sharpe Ratio (MVO):", sharpe_ratio_mvo)
