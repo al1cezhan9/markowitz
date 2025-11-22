@@ -18,5 +18,21 @@ data = raw["Close"]
 print(data.head())
 
 
+# daily returns, drop first row b/c DNE
+returns = raw.pct_change().dropna()
+
+print(returns.head())
+
+# get market caps
+market_caps = []
+for t in tickers:
+    # get ticker's metadata
+    info = yf.Ticker(t).info
+    market_caps.append(info["marketCap"])
+market_caps = np.array(market_caps) # make it a numpy array
+# normalize so that market caps sum to 1 (aka portfolio weights)
+cap_weights = market_caps / market_caps.sum()
+# get cap-weighted portfolio returns
+cap_portfolio_returns = returns.dot(cap_weights)
 
 
