@@ -4,13 +4,23 @@ import yfinance as yf
 import cvxpy as cp
 import matplotlib.pyplot as plt
 
-# can change later
-tickers = ["AAPL", "MSFT", "AMZN", "GOOGL", "META"]
+# (can change later), UPDATE: added more tickers to diversify better
+# is this too few? too many? are they representative enough?
+tickers = ["XOM", "MSFT", "C", "GE", "WMT", "BAC", "JNJ", "PFE", 
+           "INTC", "AIG", "IBM", "PG", "BRK-B", "KO", "MRK", 
+           "DIS", "MO", "CVX", "CSCO", "T", "AMZN", "GOOGL", "NVDA"
+        ]
+
+
+
+
 num_assets = len(tickers)
 # need to decide start year
 raw = yf.download(
     tickers, 
-    start="2015-01-01", 
+     #change to earlier to avoid survivorship bias and to include 2008 crisis data
+     #BUT this means that some companies like META can't be included since they IPOed later
+    start="2005-01-01", 
     auto_adjust=True
 )
 data = raw["Close"]
@@ -26,7 +36,7 @@ returns = data.pct_change().dropna()
 market_caps = []
 for t in tickers:
     # get ticker's metadata
-    info = yf.Ticker(t).info
+    info = yf.Ticker(t).info  
     market_caps.append(info["marketCap"])
 market_caps = np.array(market_caps) # make it a numpy array
 # normalize so that market caps sum to 1 (aka portfolio weights)
@@ -92,7 +102,7 @@ plt.grid(True)
 plt.show()
 
 # i think this has to be adjusted based on real historical numbers??? argh 
-risk_free_rate = 0.05
+risk_free_rate = 0.025  # nominal should be used, .025 bc avg nom from 2015 to now
 rf_daily = risk_free_rate / 252
 excess_daily_return_cap = cap_portfolio_returns - rf_daily
 excess_daily_return_mvo = mvo_portfolio_returns - rf_daily
