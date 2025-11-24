@@ -1,0 +1,8 @@
+numpy
+pandas
+yfinance
+cvxpy
+matplotlib
+ecos
+osqp
+scs
