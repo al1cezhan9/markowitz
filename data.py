@@ -102,7 +102,8 @@ plt.grid(True)
 plt.show()
 
 # i think this has to be adjusted based on real historical numbers??? argh 
-risk_free_rate = 0.025  # nominal should be used, .025 bc avg nom from 2015 to now
+risk_free_rate = 0.037  # nominal should be used, .037 bc avg nom from 2005 to now
+# if switch to 2015 start use .025
 rf_daily = risk_free_rate / 252
 excess_daily_return_cap = cap_portfolio_returns - rf_daily
 excess_daily_return_mvo = mvo_portfolio_returns - rf_daily
