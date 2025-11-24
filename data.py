@@ -106,9 +106,30 @@ risk_free_rate = 0.025  # nominal should be used, .025 bc avg nom from 2015 to n
 rf_daily = risk_free_rate / 252
 excess_daily_return_cap = cap_portfolio_returns - rf_daily
 excess_daily_return_mvo = mvo_portfolio_returns - rf_daily
+"""
+plt.plot(excess_daily_return_cap, label="CAP")  #not sure if graphed correctly
+plt.plot(excess_daily_return_mvo, label="MVO")
+plt.title("Excess Daily Return Comparison")
+plt.xlabel("Date")
+plt.ylabel("Excess Daily Return")
+plt.legend()
+plt.grid(True)
+plt.show()
+"""
+
 # sharpe is basically risk-adjusted return of an investment
 # = excess return over risk-free rate, divided by stdev
 sharpe_ratio_cap = np.sqrt(252) * (excess_daily_return_cap.mean() / excess_daily_return_cap.std())
 sharpe_ratio_mvo = np.sqrt(252) * (excess_daily_return_mvo.mean() / excess_daily_return_mvo.std())
 print("\nSharpe Ratio (CAP):", sharpe_ratio_cap)
 print("Sharpe Ratio (MVO):", sharpe_ratio_mvo)
+"""
+plt.plot(sharpe_ratio_cap, label="CAP")  #definitely not graphed correctly
+plt.plot(sharpe_ratio_mvo, label="MVO")
+plt.title("Sharpe Ratio Comparison")
+plt.xlabel("Date")
+plt.ylabel("Sharpe Ratio")
+plt.legend()
+plt.grid(True)
+plt.show()
+"""
