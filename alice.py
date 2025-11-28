@@ -17,7 +17,7 @@ data = raw["Close"]
 # for ticker in data.columns:
 #     pct = missing_pct[ticker]
 #     if pct > 0:
-#         print(f"  {ticker}: {pct:.1f}% missing")
+#         print(f"{ticker}: {pct:.1f}% missing")
 
 # forward/backwards fill? no longer necessary
 data = data.fillna(method='ffill')
@@ -84,8 +84,25 @@ for i, tr in enumerate(target_returns):
 
 print(f"{len(frontier_vol)}/{len(target_returns)} frontier points computed\n")
 
+
+num_portfolios = 5000
+random_returns = []
+random_vols = []
+
+for _ in range(num_portfolios):
+    w = np.random.rand(num_assets)
+    w = w / w.sum()
+    
+    r = float(w @ mu.values)
+    v = float(np.sqrt(w.T @ cov_matrix @ w))
+    
+    random_returns.append(r)
+    random_vols.append(v)
+
+
 equal_weights = np.ones(num_assets) / num_assets
 ew_portfolio_returns = returns.dot(equal_weights)
+
 
 market_caps = []
 for t in tickers:
@@ -149,60 +166,54 @@ results = pd.DataFrame({
 
 print(results.to_string())
 
-fig, axes = plt.subplots(2, 2, figsize=(15, 10))
-ax = axes[0, 0]
-ax.plot(frontier_vol, frontier_ret, 'b-', label="Efficient Frontier", linewidth=2)
-ax.scatter(annualized_volatility(cap_portfolio_returns), 
+plt.plot(frontier_vol, frontier_ret, 'b-', label="Efficient Frontier", linewidth=2)
+plt.scatter(annualized_volatility(cap_portfolio_returns), 
           annualized_return(cap_portfolio_returns), 
           c="red", s=150, marker='o', label="CAP", zorder=5, edgecolors='black')
-ax.scatter(annualized_volatility(mvo_portfolio_returns), 
+plt.scatter(annualized_volatility(mvo_portfolio_returns), 
           annualized_return(mvo_portfolio_returns), 
           c="blue", s=150, marker='s', label="MVO", zorder=5, edgecolors='black')
-ax.scatter(annualized_volatility(ew_portfolio_returns), 
+plt.scatter(annualized_volatility(ew_portfolio_returns), 
           annualized_return(ew_portfolio_returns), 
           c="purple", s=150, marker='^', label="EW", zorder=5, edgecolors='black')
-ax.set_xlabel("Volatility (Annual Std. Dev)", fontsize=11)
-ax.set_ylabel("Expected Return (Annual)", fontsize=11)
-ax.set_title("Efficient Frontier", fontsize=12, fontweight='bold')
-ax.grid(True, alpha=0.3)
-ax.legend(fontsize=10)
+plt.xlabel("Volatility (Annual Std. Dev)", fontsize=11)
+plt.ylabel("Expected Return (Annual)", fontsize=11)
+plt.title("Efficient Frontier", fontsize=12, fontweight='bold')
+plt.grid(True, alpha=0.3)
+plt.legend(fontsize=10)
+plt.show()
 
-ax = axes[0, 1]
+
 cum_cap = (1 + cap_portfolio_returns).cumprod()
 cum_mvo = (1 + mvo_portfolio_returns).cumprod()
 cum_ew = (1 + ew_portfolio_returns).cumprod()
-ax.plot(cum_cap.index, cum_cap.values, label="CAP", linewidth=2)
-ax.plot(cum_mvo.index, cum_mvo.values, label="MVO", linewidth=2)
-ax.plot(cum_ew.index, cum_ew.values, label="EW", linewidth=2)
-ax.set_title("Cumulative Returns", fontsize=12, fontweight='bold')
-ax.set_xlabel("Date", fontsize=11)
-ax.set_ylabel("Growth of $1", fontsize=11)
-ax.legend(fontsize=10)
-ax.grid(True, alpha=0.3)
-
-# ax = axes[1, 0]
-# mvo_holdings = pd.Series(mvo_weights, index=tickers).sort_values(ascending=True)
-# top_holdings = mvo_holdings.tail(10)
-# colors = ['#2ecc71' if x > 0.05 else '#3498db' for x in top_holdings]
-# top_holdings.plot(kind='barh', ax=ax, color=colors)
-# ax.set_title("MVO Portfolio - Top 10 Holdings", fontsize=12, fontweight='bold')
-# ax.set_xlabel("Portfolio Weight", fontsize=11)
-# ax.grid(True, alpha=0.3, axis='x')
-
-# ax = axes[1, 1]
-# window = 252
-# rolling_vol_cap = cap_portfolio_returns.rolling(window).std() * np.sqrt(252)
-# rolling_vol_mvo = mvo_portfolio_returns.rolling(window).std() * np.sqrt(252)
-# rolling_vol_ew = ew_portfolio_returns.rolling(window).std() * np.sqrt(252)
-
-# ax.plot(rolling_vol_cap.index, rolling_vol_cap.values, label="CAP", linewidth=2)
-# ax.plot(rolling_vol_mvo.index, rolling_vol_mvo.values, label="MVO", linewidth=2)
-# ax.plot(rolling_vol_ew.index, rolling_vol_ew.values, label="EW", linewidth=2)
-# ax.set_title("Rolling 1-Year Volatility", fontsize=12, fontweight='bold')
-# ax.set_ylabel("Annualized Volatility", fontsize=11)
-# ax.set_xlabel("Date", fontsize=11)
-# ax.legend(fontsize=10)
-# ax.grid(True, alpha=0.3)
-
-plt.tight_layout()
+plt.plot(cum_cap.index, cum_cap.values, label="CAP", linewidth=2)
+plt.plot(cum_mvo.index, cum_mvo.values, label="MVO", linewidth=2)
+plt.plot(cum_ew.index, cum_ew.values, label="EW", linewidth=2)
+plt.title("Cumulative Returns", fontsize=12, fontweight='bold')
+plt.xlabel("Date", fontsize=11)
+plt.ylabel("Growth of $1", fontsize=11)
+plt.legend(fontsize=10)
+plt.grid(True, alpha=0.3)
 plt.show()
+
+mvo_holdings = pd.Series(mvo_weights, index=tickers).sort_values(ascending=False)
+print("MVO Portfolio Holdings")
+print(mvo_holdings.to_string())
+
+window = 252
+rolling_vol_cap = cap_portfolio_returns.rolling(window).std() * np.sqrt(window)
+rolling_vol_mvo = mvo_portfolio_returns.rolling(window).std() * np.sqrt(window)
+rolling_vol_ew = ew_portfolio_returns.rolling(window).std() * np.sqrt(window)
+
+plt.plot(rolling_vol_cap.index, rolling_vol_cap.values, label="CAP", linewidth=2)
+plt.plot(rolling_vol_mvo.index, rolling_vol_mvo.values, label="MVO", linewidth=2)
+plt.plot(rolling_vol_ew.index, rolling_vol_ew.values, label="EW", linewidth=2)
+plt.title("Rolling 1-Year Volatility", fontsize=12, fontweight='bold')
+plt.ylabel("Annualized Volatility", fontsize=11)
+plt.xlabel("Date", fontsize=11)
+plt.legend(fontsize=10)
+plt.grid(True, alpha=0.3)
+plt.show()
+
+
