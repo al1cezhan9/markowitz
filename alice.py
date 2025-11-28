@@ -181,6 +181,7 @@ plt.ylabel("Expected Return (Annual)", fontsize=11)
 plt.title("Efficient Frontier", fontsize=12, fontweight='bold')
 plt.grid(True, alpha=0.3)
 plt.legend(fontsize=10)
+plt.savefig("efffront.png")
 plt.show()
 
 
@@ -195,6 +196,7 @@ plt.xlabel("Date", fontsize=11)
 plt.ylabel("Growth of $1", fontsize=11)
 plt.legend(fontsize=10)
 plt.grid(True, alpha=0.3)
+plt.savefig("cumret.png")
 plt.show()
 
 mvo_holdings = pd.Series(mvo_weights, index=tickers).sort_values(ascending=False)
@@ -214,6 +216,7 @@ plt.ylabel("Annualized Volatility", fontsize=11)
 plt.xlabel("Date", fontsize=11)
 plt.legend(fontsize=10)
 plt.grid(True, alpha=0.3)
+plt.savefig("rollvol.png")
 plt.show()
 
 
