@@ -4,20 +4,22 @@ import yfinance as yf
 import cvxpy as cp
 import matplotlib.pyplot as plt
 
+# tickers from all sectors
 tickers = [
     "WMT", "XOM", "MSFT", "F", "GE", "COP", "C", "AIG", 
     "IBM", "GOOGL", "AAPL", "HD", "VZ", "MCK", 
-    "CAH", "MO", "BAC", "JPM", "KR", "VLO", "COR", "PFE"
+    "CAH", "MO", "BAC", "JPM", "KR", "VLO", "COR", "PFE", 
+    "NEE", "DUK", "LIN", "PLD"
 ]
 
 raw = yf.download(tickers, start="2005-01-01", auto_adjust=True, progress=False)
 data = raw["Close"]
 
-# missing_pct = data.isnull().sum() / len(data)*100
-# for ticker in data.columns:
-#     pct = missing_pct[ticker]
-#     if pct > 0:
-#         print(f"{ticker}: {pct:.1f}% missing")
+missing_pct = data.isnull().sum() / len(data)*100
+for ticker in data.columns:
+    pct = missing_pct[ticker]
+    if pct > 0:
+        print(f"{ticker}: {pct:.1f}% missing")
 
 # forward/backwards fill? no longer necessary
 data = data.fillna(method='ffill')
@@ -166,7 +168,7 @@ results = pd.DataFrame({
 
 print(results.to_string())
 
-plt.plot(frontier_vol, frontier_ret, 'b-', label="Efficient Frontier", linewidth=2)
+plt.plot(frontier_vol, frontier_ret, 'b-', label="Efficient Frontier", linewidth=2, color="grey")
 plt.scatter(annualized_volatility(cap_portfolio_returns), 
           annualized_return(cap_portfolio_returns), 
           c="red", s=150, marker='o', label="CAP", zorder=5, edgecolors='black')
@@ -175,7 +177,7 @@ plt.scatter(annualized_volatility(mvo_portfolio_returns),
           c="blue", s=150, marker='s', label="MVO", zorder=5, edgecolors='black')
 plt.scatter(annualized_volatility(ew_portfolio_returns), 
           annualized_return(ew_portfolio_returns), 
-          c="purple", s=150, marker='^', label="EW", zorder=5, edgecolors='black')
+          c="green", s=150, marker='^', label="EW", zorder=5, edgecolors='black')
 plt.xlabel("Volatility (Annual Std. Dev)", fontsize=11)
 plt.ylabel("Expected Return (Annual)", fontsize=11)
 plt.title("Efficient Frontier", fontsize=12, fontweight='bold')
@@ -188,9 +190,9 @@ plt.show()
 cum_cap = (1 + cap_portfolio_returns).cumprod()
 cum_mvo = (1 + mvo_portfolio_returns).cumprod()
 cum_ew = (1 + ew_portfolio_returns).cumprod()
-plt.plot(cum_cap.index, cum_cap.values, label="CAP", linewidth=2)
-plt.plot(cum_mvo.index, cum_mvo.values, label="MVO", linewidth=2)
-plt.plot(cum_ew.index, cum_ew.values, label="EW", linewidth=2)
+plt.plot(cum_cap.index, cum_cap.values, label="CAP", linewidth=2, color="red")
+plt.plot(cum_mvo.index, cum_mvo.values, label="MVO", linewidth=2, color="blue")
+plt.plot(cum_ew.index, cum_ew.values, label="EW", linewidth=2, color="green")
 plt.title("Cumulative Returns", fontsize=12, fontweight='bold')
 plt.xlabel("Date", fontsize=11)
 plt.ylabel("Growth of $1", fontsize=11)
@@ -208,9 +210,9 @@ rolling_vol_cap = cap_portfolio_returns.rolling(window).std() * np.sqrt(window)
 rolling_vol_mvo = mvo_portfolio_returns.rolling(window).std() * np.sqrt(window)
 rolling_vol_ew = ew_portfolio_returns.rolling(window).std() * np.sqrt(window)
 
-plt.plot(rolling_vol_cap.index, rolling_vol_cap.values, label="CAP", linewidth=2)
-plt.plot(rolling_vol_mvo.index, rolling_vol_mvo.values, label="MVO", linewidth=2)
-plt.plot(rolling_vol_ew.index, rolling_vol_ew.values, label="EW", linewidth=2)
+plt.plot(rolling_vol_cap.index, rolling_vol_cap.values, label="CAP", linewidth=2, color="red")
+plt.plot(rolling_vol_mvo.index, rolling_vol_mvo.values, label="MVO", linewidth=2, color="blue")
+plt.plot(rolling_vol_ew.index, rolling_vol_ew.values, label="EW", linewidth=2, color="green")
 plt.title("Rolling 1-Year Volatility", fontsize=12, fontweight='bold')
 plt.ylabel("Annualized Volatility", fontsize=11)
 plt.xlabel("Date", fontsize=11)
